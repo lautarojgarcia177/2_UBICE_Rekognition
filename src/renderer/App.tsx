@@ -1,17 +1,20 @@
 import { MemoryRouter as Router, Routes, Route } from 'react-router-dom';
-// import icon from '../../assets/icon.svg';
+import logo from '../../assets/icons/ubice-logo.png';
 import '../../assets/styles/google-icon-font.css';
 import './App.css';
-import { Modal, Button } from 'react-materialize';
-
-const trigger = <Button>Open Modal</Button>;
+import { Preloader } from 'react-materialize';
 
 const Initial = () => {
   return (
     <div>
-      <Modal header="Modal Header" trigger={trigger}>
-        Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-      </Modal>
+      <div className="Initial center-align">
+        <img width="200px" alt="icon" src={logo} />
+      <h2>UBICE - Rekognition</h2>
+      {/* <div className='Initial'>
+        {loading ? loadingSpinner : selectDirectoryButton}
+      </div> */}
+      <Preloader active color="blue" flashing size="big" />
+      </div>
     </div>
   );
 };
