@@ -26,3 +26,10 @@
 .results__table table {
     max-width: 90vw;
 }
+
+#Initial {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}

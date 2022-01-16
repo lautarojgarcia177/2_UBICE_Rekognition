@@ -16,6 +16,7 @@ import { autoUpdater } from 'electron-updater';
 import log from 'electron-log';
 import MenuBuilder from './menu';
 import { resolveHtmlPath } from './util';
+import unhandled from 'electron-unhandled';
 
 export default class AppUpdater {
   constructor() {
@@ -26,6 +27,10 @@ export default class AppUpdater {
 }
 
 let mainWindow: BrowserWindow | null = null;
+
+unhandled({
+  showDialog: true
+});
 
 ipcMain.on('select-directory', (event, arg) => {
   const selectedDirectoryPath = dialog.showOpenDialogSync(<any>mainWindow, {
