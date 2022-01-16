@@ -8,35 +8,82 @@
 @import '~react-toastify/dist/ReactToastify.css';
 
 .mt-1 {
-    margin-top: 1rem;
+  margin-top: 1rem;
 }
 .ms-1 {
-    margin-left: 1rem;
+  margin-left: 1rem;
 }
 .mt-2 {
-    margin-top: 2rem;
+  margin-top: 2rem;
 }
 .ms-2 {
-    margin-left: 2rem;
+  margin-left: 2rem;
 }
 
 .results__table {
-    display: flex;
-    justify-content: center;
+  display: flex;
+  justify-content: center;
 }
 
 .results__table table {
-    max-width: 90vw;
+  max-width: 90vw;
 }
 
 #Initial {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
 }
 
 #results_export_buttons {
+  display: flex;
+  justify-content: space-around;
+}
+
+
+
+/* .ReactModal__Overlay {
+  -webkit-perspective: 600;
+  perspective: 600;
+  opacity: 0.85;
+  overflow-x: hidden;
+  overflow-y: auto;
+  background-color: rgba(0, 0, 0, 0.5);
+}
+
+.ReactModal__Overlay--after-open {
+  opacity: 1;
+  transition: opacity 150ms ease-out;
+}
+
+.ReactModal__Content {
+  -webkit-transform: scale(0.5) rotateX(-30deg);
+  transform: scale(0.5) rotateX(-30deg);
+}
+
+.ReactModal__Content--after-open {
+  -webkit-transform: scale(1) rotateX(0deg);
+  transform: scale(1) rotateX(0deg);
+  transition: all 150ms ease-in;
+}
+
+.ReactModal__Overlay--before-close {
+  opacity: 1;
+}
+
+.ReactModal__Content--before-close {
+  -webkit-transform: scale(0.5) rotateX(30deg);
+  transform: scale(0.5) rotateX(30deg);
+  transition: all 150ms ease-in;
+}
+
+.ReactModal__Content.modal-dialog {
+  border: none;
+  background-color: transparent;
+} */
+
+.aws-credentials-dialog__buttons {
     display: flex;
-    justify-content: space-around;
+    justify-content: end;
 }

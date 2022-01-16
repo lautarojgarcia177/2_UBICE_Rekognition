@@ -153,37 +153,6 @@ export default class MenuBuilder {
         { label: 'Bring All to Front', selector: 'arrangeInFront:' },
       ],
     };
-    const subMenuHelp: MenuItemConstructorOptions = {
-      label: 'Help',
-      submenu: [
-        {
-          label: 'Learn More',
-          click() {
-            shell.openExternal('https://electronjs.org');
-          },
-        },
-        {
-          label: 'Documentation',
-          click() {
-            shell.openExternal(
-              'https://github.com/electron/electron/tree/main/docs#readme'
-            );
-          },
-        },
-        {
-          label: 'Community Discussions',
-          click() {
-            shell.openExternal('https://www.electronjs.org/community');
-          },
-        },
-        {
-          label: 'Search Issues',
-          click() {
-            shell.openExternal('https://github.com/electron/electron/issues');
-          },
-        },
-      ],
-    };
 
     const subMenuView =
       process.env.NODE_ENV === 'development' ||
@@ -191,35 +160,19 @@ export default class MenuBuilder {
         ? subMenuViewDev
         : subMenuViewProd;
 
-    return [subMenuAbout, subMenuEdit, subMenuView, subMenuWindow, subMenuHelp];
+    return [subMenuAbout, subMenuEdit, subMenuView, subMenuWindow];
   }
 
   buildDefaultTemplate() {
     const templateDefault = [
       {
-        label: '&File',
-        submenu: [
-          {
-            label: '&Open',
-            accelerator: 'Ctrl+O',
-          },
-          {
-            label: '&Close',
-            accelerator: 'Ctrl+W',
-            click: () => {
-              this.mainWindow.close();
-            },
-          },
-        ],
-      },
-      {
-        label: '&View',
+        label: '&Ver',
         submenu:
           process.env.NODE_ENV === 'development' ||
           process.env.DEBUG_PROD === 'true'
             ? [
                 {
-                  label: '&Reload',
+                  label: '&Recargar',
                   accelerator: 'Ctrl+R',
                   click: () => {
                     this.mainWindow.webContents.reload();
@@ -258,38 +211,7 @@ export default class MenuBuilder {
         label: 'Credenciales AWS',
         click: () => {
           this.mainWindow.webContents.send('set-aws-credentials', null);
-        }
-      },
-      {
-        label: 'Help',
-        submenu: [
-          {
-            label: 'Learn More',
-            click() {
-              shell.openExternal('https://electronjs.org');
-            },
-          },
-          {
-            label: 'Documentation',
-            click() {
-              shell.openExternal(
-                'https://github.com/electron/electron/tree/main/docs#readme'
-              );
-            },
-          },
-          {
-            label: 'Community Discussions',
-            click() {
-              shell.openExternal('https://www.electronjs.org/community');
-            },
-          },
-          {
-            label: 'Search Issues',
-            click() {
-              shell.openExternal('https://github.com/electron/electron/issues');
-            },
-          },
-        ],
+        },
       },
       {
         label: 'Acerca de esta aplicación',
@@ -300,16 +222,17 @@ export default class MenuBuilder {
             package_json_dir: '../',
             show_close_button: 'Cerrar',
             product_name: 'UBICE-rekognition',
-            description: 'Aplicación para reconocer números de corredores en fotos. Utiliza el servicio de Inteligencia Artificial de AWS. Desarrollado por Lautaro Garcia: https://github.com/lautarojgarcia177',
+            description:
+              'Aplicación para reconocer números de corredores en fotos. Utiliza el servicio de Inteligencia Artificial de AWS. Desarrollado por Lautaro Garcia: https://github.com/lautarojgarcia177',
             open_devtools: false,
             bug_report_url: 'mailto:lautarojgarcia177@gmail.com',
             win_options: {
-              height: 470,
-              width: 270
-            }
-          })
-        }
-      }
+              height: 490,
+              width: 270,
+            },
+          });
+        },
+      },
     ];
 
     return templateDefault;

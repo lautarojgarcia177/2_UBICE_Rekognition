@@ -37,7 +37,11 @@ ipcMain.on('select-directory', (event, arg) => {
     title: 'Seleccionar directorio de imagenes',
     properties: ['openDirectory', 'showHiddenFiles', 'createDirectory'],
   });
-  event.reply('directory-selected', selectedDirectoryPath);
+  if (selectedDirectoryPath) {
+    event.reply('directory-selected', selectedDirectoryPath);
+  } else {
+    event.reply('directory-selection-cancelled');
+  }
 });
 
 if (process.env.NODE_ENV === 'production') {
@@ -65,7 +69,7 @@ const installExtensions = async () => {
     .catch(console.log);
 };
 
-const createWindow = async () => {
+const createMainWindow = async () => {
   if (isDevelopment) {
     await installExtensions();
   }
@@ -114,9 +118,6 @@ const createWindow = async () => {
     shell.openExternal(url);
   });
 
-  // Remove this if your app does not use auto updates
-  // eslint-disable-next-line
-  new AppUpdater();
 };
 
 /**
@@ -134,11 +135,11 @@ app.on('window-all-closed', () => {
 app
   .whenReady()
   .then(() => {
-    createWindow();
+    createMainWindow();
     app.on('activate', () => {
       // On macOS it's common to re-create a window in the app when the
       // dock icon is clicked and there are no other windows open.
-      if (mainWindow === null) createWindow();
+      if (mainWindow === null) createMainWindow();
     });
   })
   .catch(console.log);

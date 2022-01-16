@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
 import { Button, Icon, Preloader, ProgressBar } from 'react-materialize';
 import { useNavigate } from 'react-router-dom';
 import logo from '../../../assets/icons/ubice-logo.png';
@@ -20,27 +20,30 @@ export const Initial = () => {
     })
   );
   function selectDirectory() {
-    setLoading(true);
     window.electron.ipcRenderer.selectDirectory();
   }
   window.addEventListener('rekognition-finished', () => {
     navigate('/results');
   });
+  window.addEventListener('aws-rekognition__start', () => {
+    setLoading(true);
+  });
   window.addEventListener('directory-selected__no-images-error', () => {
     setLoading(false);
     debouncedNotifyNoImagesInDirectoryError();
   });
-  const debouncedNotifyNoImagesInDirectoryError = useMemo(
-    () =>
-      debounce(
-        () =>
-          toast.error(
-            'No se encontro ninguna imagen jpg, jpeg o png en el directorio seleccionado.'
-          ),
-        1000
-      ),
-    []
-  );
+  window.addEventListener('directory-selection-cancelled', () => {
+    setLoading(false);
+  });
+  const debouncedNotifyNoImagesInDirectoryError = useRef(
+    debounce(
+      () =>
+        toast.error(
+          'No se encontro ninguna imagen jpg, jpeg o png en el directorio seleccionado.'
+        ),
+      2000
+    )
+  ).current;
   const selectDirectoryButton = (
     <>
       <p>
@@ -54,7 +57,7 @@ export const Initial = () => {
           configuración - Credenciales de AWS
         </small>
       </p>
-      <Button
+      <Button className="button__select_directory"
         node="button"
         style={{
           marginRight: '5px',

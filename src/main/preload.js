@@ -31,14 +31,15 @@ ipcRenderer.on('directory-selected', (event, selectedDirectoryPath) => {
   fs.readdir(selectedDirectoryPath, (err, allFileNames) => {
     const imageFileNames = allFileNames.filter(
       (filename) =>
-        filename.endsWith('.JPG') ||
-        filename.endsWith('.PNG') ||
-        filename.endsWith('.JPEG') ||
-        filename.endsWith('.jpg') ||
-        filename.endsWith('.png') ||
-        filename.endsWith('.jpeg')
-    );
-    if (imageFileNames.length > 0) {
+      filename.endsWith('.JPG') ||
+      filename.endsWith('.PNG') ||
+      filename.endsWith('.JPEG') ||
+      filename.endsWith('.jpg') ||
+      filename.endsWith('.png') ||
+      filename.endsWith('.jpeg')
+      );
+      if (imageFileNames.length > 0) {
+      window.dispatchEvent(new Event('aws-rekognition__start'));
       let promises = [];
       let completed_count = 0;
       function notifyProgress() {
@@ -76,6 +77,10 @@ ipcRenderer.on('directory-selected', (event, selectedDirectoryPath) => {
 
 ipcRenderer.on('set-aws-credentials', (event, ...args) => {
   window.dispatchEvent(new Event('set-aws-credentials'));
+});
+
+ipcRenderer.on('directory-selection-cancelled', (event, ...args) => {
+  window.dispatchEvent(new Event('directory-selection-cancelled'));
 });
 
 const parse2CSV = () => {
