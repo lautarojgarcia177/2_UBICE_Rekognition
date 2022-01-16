@@ -1,4 +1,3 @@
-import { useEffect } from 'react';
 import { Button, Icon } from 'react-materialize';
 import { useNavigate } from 'react-router-dom';
 

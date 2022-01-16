@@ -1,4 +1,4 @@
-const { contextBridge, ipcRenderer } = require('electron');
+const { contextBridge, ipcRenderer, shell } = require('electron');
 const fs = require('fs');
 const path = require('path');
 const aws = require('./aws.js');
@@ -38,35 +38,39 @@ ipcRenderer.on('directory-selected', (event, selectedDirectoryPath) => {
         filename.endsWith('.png') ||
         filename.endsWith('.jpeg')
     );
-    let promises = [];
-    let completed_count = 0;
-    function notifyProgress() {
-      completed_count++;
-      const progress = completed_count / imageFileNames.length;
-      window.dispatchEvent(
-        new CustomEvent('rekognition-progress', {
-          detail: { progress: progress },
-        })
-      );
-    }
-    for (let i = 0; i < imageFileNames.length; i++) {
-      const imagePath = path.join(selectedDirectoryPath, imageFileNames[i]);
-      const promise = aws.rekognize(imagePath).then((result) => {
-        notifyProgress();
-        return {
-          imageFilename: imageFileNames[i],
-          findings: result,
-        };
+    if (imageFileNames.length > 0) {
+      let promises = [];
+      let completed_count = 0;
+      function notifyProgress() {
+        completed_count++;
+        const progress = completed_count / imageFileNames.length;
+        window.dispatchEvent(
+          new CustomEvent('rekognition-progress', {
+            detail: { progress: progress },
+          })
+          );
+        }
+        for (let i = 0; i < imageFileNames.length; i++) {
+          const imagePath = path.join(selectedDirectoryPath, imageFileNames[i]);
+          const promise = aws.rekognize(imagePath).then((result) => {
+            notifyProgress();
+            return {
+              imageFilename: imageFileNames[i],
+              findings: result,
+            };
+          });
+        promises.push(promise);
+      }
+      Promise.all(promises).then((results) => {
+        rekognitionResults = results;
+        window.dispatchEvent(new Event('rekognition-finished'));
+        new window.Notification('Se terminó de reconocer las imagenes', {
+          body: 'El reporte de reconocimiento de números en las imágenes está listo',
+        });
       });
-      promises.push(promise);
+    } else {
+      window.dispatchEvent(new Event('directory-selected__no-images-error'));
     }
-    Promise.all(promises).then((results) => {
-      rekognitionResults = results;
-      window.dispatchEvent(new Event('rekognition-finished'));
-      new window.Notification('Se terminó de reconocer las imagenes', {
-        body: 'El reporte de reconocimiento de números en las imágenes está listo',
-      });
-    });
   });
 });
 
@@ -86,6 +90,7 @@ const parse2CSV = () => {
 ipcRenderer.on('directory-selected__export-CSV', (_, filePath) => {
   const csv = parse2CSV();
   fs.writeFile(filePath, csv, function (err, _) {
+    shell.showItemInFolder(filePath);
     new window.Notification('Se generó el archivo CSV de resultados', {
       body: 'Se finalizo de generar el reporte en formato CSV, puede encontrarlo en el directorio seleccionado',
     });

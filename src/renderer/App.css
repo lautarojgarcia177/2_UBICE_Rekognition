@@ -4,6 +4,8 @@
  */
 
 @import '~materialize-css/dist/css/materialize.css';
+@import '../../assets/styles/google-icon-font.css';
+@import '~react-toastify/dist/ReactToastify.css';
 
 .mt-1 {
     margin-top: 1rem;
