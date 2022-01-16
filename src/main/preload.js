@@ -2,22 +2,23 @@ const { contextBridge, ipcRenderer } = require('electron');
 
 contextBridge.exposeInMainWorld('electron', {
   ipcRenderer: {
-    myPing() {
-      ipcRenderer.send('ipc-example', 'ping');
-    },
-    on(channel, func) {
-      const validChannels = ['ipc-example'];
-      if (validChannels.includes(channel)) {
-        // Deliberately strip event as it includes `sender`
-        ipcRenderer.on(channel, (event, ...args) => func(...args));
-      }
-    },
-    once(channel, func) {
-      const validChannels = ['ipc-example'];
-      if (validChannels.includes(channel)) {
-        // Deliberately strip event as it includes `sender`
-        ipcRenderer.once(channel, (event, ...args) => func(...args));
-      }
-    },
+    selectDirectory() {
+      ipcRenderer.send('select-directory');
+    }
   },
+});
+
+ipcRenderer.on('directory-selected', (event, selectedDirectoryPath) => {
+  console.log(selectedDirectoryPath);
+  
+  window.dispatchEvent(new Event('rekognition-finished'));
+  new window.Notification('Se terminó de reconocer las imagenes', {
+    body: 'El reporte de reconocimiento de números en las imágenes esta listo'
+  });
+});
+
+ipcRenderer.on('set-aws-credentials', (event, ...args) => {
+  new window.Notification('set AWS CREDENTIASSD', {
+    body: 'Efffffffffffffffffffffffff esta listo'
+  });
 });

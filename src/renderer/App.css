@@ -4,3 +4,25 @@
  */
 
 @import '~materialize-css/dist/css/materialize.css';
+
+.mt-1 {
+    margin-top: 1rem;
+}
+.ms-1 {
+    margin-left: 1rem;
+}
+.mt-2 {
+    margin-top: 2rem;
+}
+.ms-2 {
+    margin-left: 2rem;
+}
+
+.results__table {
+    display: flex;
+    justify-content: center;
+}
+
+.results__table table {
+    max-width: 90vw;
+}

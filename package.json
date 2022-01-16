@@ -37,7 +37,8 @@
     "files": [
       "dist",
       "node_modules",
-      "package.json"
+      "package.json",
+      "assets"
     ],
     "afterSign": ".erb/scripts/notarize.js",
     "mac": {
@@ -226,6 +227,7 @@
     "webpack-merge": "^5.8.0"
   },
   "dependencies": {
+    "about-window": "^1.15.2",
     "electron-debug": "^3.2.0",
     "electron-log": "^4.4.4",
     "electron-updater": "^4.6.4",
