@@ -55,7 +55,7 @@ ipcRenderer.on('directory-selected', (event, selectedDirectoryPath) => {
         notifyProgress();
         return {
           imageFilename: imageFileNames[i],
-          findings: result
+          findings: result,
         };
       });
       promises.push(promise);
@@ -85,7 +85,7 @@ const parse2CSV = () => {
 
 ipcRenderer.on('directory-selected__export-CSV', (_, filePath) => {
   const csv = parse2CSV();
-  fs.writeFile(filePath, csv, function(err, _) {
+  fs.writeFile(filePath, csv, function (err, _) {
     new window.Notification('Se generó el archivo CSV de resultados', {
       body: 'Se finalizo de generar el reporte en formato CSV, puede encontrarlo en el directorio seleccionado',
     });
