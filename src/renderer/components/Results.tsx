@@ -25,6 +25,7 @@ export const Results = () => {
   );
   return (
     <div>
+
       <Button
         className="left-align mt-1 ms-1"
         node="button"
@@ -46,10 +47,10 @@ export const Results = () => {
               <th className="center-align">Hallazgos</th>
             </tr>
           </thead>
-
           <tbody>{results}</tbody>
         </table>
       </div>
+      
     </div>
   );
 };

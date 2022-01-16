@@ -8,6 +8,11 @@ import './App.css';
 import { Initial, Results } from './components';
 
 export default function App() {
+
+  window.addEventListener('set-aws-credentials', () => {
+    console.log('open dialog set AWS credentials');
+  });
+
   return (
     <Router>
       <Routes>
