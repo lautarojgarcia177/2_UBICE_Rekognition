@@ -29,7 +29,7 @@ export default class AppUpdater {
 let mainWindow: BrowserWindow | null = null;
 
 unhandled({
-  showDialog: true
+  showDialog: true,
 });
 
 ipcMain.on('select-directory', (event, arg) => {
@@ -140,6 +140,28 @@ app
       // dock icon is clicked and there are no other windows open.
       if (mainWindow === null) createWindow();
     });
-
   })
   .catch(console.log);
+
+ipcMain.on('open-dialog-export-CSV', (event) => {
+  dialog
+    .showSaveDialog(<Electron.BrowserWindow>mainWindow, {
+      properties: ['createDirectory'],
+      title: 'Exportar a archivo CSV',
+      filters: [
+        {
+          name: 'csv',
+          extensions: ['csv'],
+        },
+      ],
+    })
+    .then((result) => {
+      if (result.canceled) {
+        console.log('Dialog was canceled');
+      }
+      event.sender.send('directory-selected__export-CSV', result.filePath);
+    })
+    .catch((err) => {
+      console.log(err);
+    });
+});

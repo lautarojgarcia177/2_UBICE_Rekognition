@@ -17,28 +17,28 @@ function useRegex(input) {
  * @param {path of the image} imagePath
  */
 function rekognize(imagePath) {
-  fs.readFile(imagePath, (err, image) => {
-      console.log('been here!');
-    const command = new DetectTextCommand({
-      Image: {
-        Bytes: image,
-      },
-      Filters: {
-        WordFilter: {
-          MinConfidence: 98,
+  return fs.promises
+    .readFile(imagePath)
+    .then((image) => {
+      const command = new DetectTextCommand({
+        Image: {
+          Bytes: image,
         },
-      },
-    });
-    client.send(command).then(
-      (res) =>
-        res.TextDetections.filter((textDetection) =>
-          useRegex(textDetection.DetectedText)
-        )
-          .filter((textDetection) => textDetection.Type === 'WORD')
-          .map((textDetection) => textDetection.DetectedText),
-      (err) => console.error
+        Filters: {
+          WordFilter: {
+            MinConfidence: 98,
+          },
+        },
+      });
+      return client.send(command);
+    })
+    .then((res) =>
+      res.TextDetections.filter((textDetection) =>
+        useRegex(textDetection.DetectedText)
+      )
+        .filter((textDetection) => textDetection.Type === 'WORD')
+        .map((textDetection) => textDetection.DetectedText)
     );
-  });
 }
 
 module.exports = {

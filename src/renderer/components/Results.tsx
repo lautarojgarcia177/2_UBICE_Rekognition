@@ -1,31 +1,33 @@
+import { useEffect } from 'react';
 import { Button, Icon } from 'react-materialize';
 import { useNavigate } from 'react-router-dom';
+
+const Findings = (props) => {
+  return props.findings.map((finding, index) => (
+    <span key={index}>{finding}, </span>
+  ));
+};
 
 export const Results = () => {
   let navigate = useNavigate();
   function goBack() {
     navigate('/');
   }
-  const results = (
-    <>
-      <tr>
-        <td>Alvin</td>
-        <td>Eclair</td>
-      </tr>
-      <tr>
-        <td>Alan</td>
+  function exportToCSV() {
+    window.electron.ipcRenderer.showSaveDialogCSV();
+  }
+  const results = window.electron.aws
+    .getRekognitions()
+    .map((rekognized, index) => (
+      <tr key={index}>
+        <td>{rekognized.imageFilename}</td>
         <td>
-          Jellybean, Jellybean, Jellybean, Jellybean, Jellybean, Jellybean,
-          Jellybean, Jellybean, Jellybean, Jellybean, Jellybean, Jellybean,
-          Jellybean, Jellybean, Jellybean, Jellybean, Jellybean, Jellybean,
-          Jellybean, Jellybean,
+          <Findings findings={rekognized.findings} />
         </td>
       </tr>
-    </>
-  );
+    ));
   return (
     <div>
-
       <Button
         className="left-align mt-1 ms-1"
         node="button"
@@ -43,14 +45,26 @@ export const Results = () => {
         <table className="highlight">
           <thead>
             <tr>
-              <th className="center-align">Imagen</th>
-              <th className="center-align">Hallazgos</th>
+              <th>Imagen</th>
+              <th>Hallazgos</th>
             </tr>
           </thead>
           <tbody>{results}</tbody>
         </table>
       </div>
-      
+      <div id="results_export_buttons" className="mt-2">
+      <Button
+        node="button"
+        style={{
+          marginRight: '5px',
+        }}
+        waves="light"
+        onClick={exportToCSV}
+      >
+        Exportar a CSV
+        <Icon left>view_list</Icon>
+      </Button>
+      </div>
     </div>
   );
 };
