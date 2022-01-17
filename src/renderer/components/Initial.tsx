@@ -13,6 +13,12 @@ export const Initial = () => {
     const _progress = event.detail.progress * 100;
     setProgress(_progress);
   });
+  window.addEventListener('rekognition-failure', (event) => {
+    const error = event.detail.error;
+    setLoading(false);
+    console.log(error);
+    debouncedNotifyRekognitionError();
+  });
   useEffect(() =>
     window.removeEventListener('rekognition-progress', (event) => {
       const _progress = event.detail.progress * 100;
@@ -35,6 +41,7 @@ export const Initial = () => {
   window.addEventListener('directory-selection-cancelled', () => {
     setLoading(false);
   });
+
   const debouncedNotifyNoImagesInDirectoryError = useRef(
     debounce(
       () =>
@@ -42,6 +49,13 @@ export const Initial = () => {
           'No se encontro ninguna imagen jpg, jpeg o png en el directorio seleccionado.'
         ),
       2000
+    )
+  ).current;
+  const debouncedNotifyRekognitionError = useRef(
+    debounce(
+      () =>
+        toast.error('Hubo un error, no se pudo reconocer las imagenes en aws'),
+      4000
     )
   ).current;
   const selectDirectoryButton = (
@@ -54,10 +68,13 @@ export const Initial = () => {
         <br />
         <small>
           Asegurese de configurar sus credenciales de AWS en el menú
-          configuración - Credenciales de AWS
+          configuración - Credenciales de AWS. La aplicación trabaja en la
+          región us-west-1 de AWS. Para cambiar la región, contáctese con el
+          desarrollador.
         </small>
       </p>
-      <Button className="button__select_directory"
+      <Button
+        className="button__select_directory"
         node="button"
         style={{
           marginRight: '5px',
@@ -88,14 +105,6 @@ export const Initial = () => {
           )}
         </div>
       </div>
-      <ToastContainer
-        position="top-center"
-        hideProgressBar={true}
-        newestOnTop={true}
-        closeOnClick
-        pauseOnFocusLoss
-        pauseOnHover
-      />
     </div>
   );
 };

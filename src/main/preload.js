@@ -23,6 +23,12 @@ contextBridge.exposeInMainWorld('electron', {
       process.env.AWS_ACCESS_KEY_ID = accessKeyId;
       process.env.AWS_SECRET_ACCESS_KEY = secretAccessKey;
     },
+    getCredentials() {
+      return {
+        accesKeyId: process.env.AWS_ACCESS_KEY_ID,
+        secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+      };
+    },
   },
 });
 
@@ -31,14 +37,14 @@ ipcRenderer.on('directory-selected', (event, selectedDirectoryPath) => {
   fs.readdir(selectedDirectoryPath, (err, allFileNames) => {
     const imageFileNames = allFileNames.filter(
       (filename) =>
-      filename.endsWith('.JPG') ||
-      filename.endsWith('.PNG') ||
-      filename.endsWith('.JPEG') ||
-      filename.endsWith('.jpg') ||
-      filename.endsWith('.png') ||
-      filename.endsWith('.jpeg')
-      );
-      if (imageFileNames.length > 0) {
+        filename.endsWith('.JPG') ||
+        filename.endsWith('.PNG') ||
+        filename.endsWith('.JPEG') ||
+        filename.endsWith('.jpg') ||
+        filename.endsWith('.png') ||
+        filename.endsWith('.jpeg')
+    );
+    if (imageFileNames.length > 0) {
       window.dispatchEvent(new Event('aws-rekognition__start'));
       let promises = [];
       let completed_count = 0;
@@ -49,16 +55,25 @@ ipcRenderer.on('directory-selected', (event, selectedDirectoryPath) => {
           new CustomEvent('rekognition-progress', {
             detail: { progress: progress },
           })
-          );
-        }
-        for (let i = 0; i < imageFileNames.length; i++) {
-          const imagePath = path.join(selectedDirectoryPath, imageFileNames[i]);
-          const promise = aws.rekognize(imagePath).then((result) => {
+        );
+      }
+      for (let i = 0; i < imageFileNames.length; i++) {
+        const imagePath = path.join(selectedDirectoryPath, imageFileNames[i]);
+        const promise = aws
+          .rekognize(imagePath)
+          .then((result) => {
             notifyProgress();
             return {
               imageFilename: imageFileNames[i],
               findings: result,
             };
+          })
+          .catch((err) => {
+            window.dispatchEvent(
+              new CustomEvent('rekognition-failure', {
+                detail: { error: err },
+              })
+            );
           });
         promises.push(promise);
       }
