@@ -3,8 +3,35 @@ const fs = require('fs');
 const path = require('path');
 const aws = require('./aws.js');
 const { Parser, parse } = require('json2csv');
+const Store = require('electron-store');
 
 let rekognitionResults = [];
+const store = new Store();
+
+function setAWSCredentials(accessKeyId, secretAccessKey) {
+  store.set('awsAccessKeyId', accessKeyId);
+  store.set('awsSecretAccessKey', secretAccessKey);
+  process.env.AWS_ACCESS_KEY_ID = accessKeyId;
+  process.env.AWS_SECRET_ACCESS_KEY = secretAccessKey;
+}
+
+function getAWSCredentials() {
+  return {
+    accessKeyId: store.get('awsAccessKeyId'),
+    secretAccessKey: store.get('awsSecretAccessKey'),
+    process: {
+      accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+      secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY
+    }
+  };
+}
+
+function loadAWSCredentials() {
+  const credentials = getAWSCredentials();
+  setAWSCredentials(credentials.accesKeyId, credentials.secretAccessKey);
+}
+
+loadAWSCredentials();
 
 contextBridge.exposeInMainWorld('electron', {
   ipcRenderer: {
@@ -20,14 +47,10 @@ contextBridge.exposeInMainWorld('electron', {
       return rekognitionResults;
     },
     setCredentials(accessKeyId, secretAccessKey) {
-      process.env.AWS_ACCESS_KEY_ID = accessKeyId;
-      process.env.AWS_SECRET_ACCESS_KEY = secretAccessKey;
+      setAWSCredentials(accessKeyId, secretAccessKey);
     },
     getCredentials() {
-      return {
-        accesKeyId: process.env.AWS_ACCESS_KEY_ID,
-        secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
-      };
+      return getAWSCredentials();
     },
   },
 });
@@ -98,7 +121,6 @@ ipcRenderer.on('directory-selection-cancelled', (event, ...args) => {
   window.dispatchEvent(new Event('directory-selection-cancelled'));
 });
 
-
 const parse2CSV = () => {
   const json2csvParser = new Parser();
   const rekognitions = rekognitionResults.map((rekognition) => {
@@ -111,8 +133,8 @@ const parse2CSV = () => {
     findings = findings.slice(0, -2);
     return {
       imageFilename: rekognition.imageFilename,
-      findings: findings
-    }
+      findings: findings,
+    };
   });
   return json2csvParser.parse(rekognitions);
 };

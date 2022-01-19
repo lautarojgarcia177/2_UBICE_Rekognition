@@ -18,6 +18,7 @@ import MenuBuilder from './menu';
 import { resolveHtmlPath } from './util';
 import unhandled from 'electron-unhandled';
 import 'dotenv/config' // see https://github.com/motdotla/dotenv#how-do-i-use-dotenv-with-import
+import Store from 'electron-store';
 
 export default class AppUpdater {
   constructor() {
@@ -28,6 +29,7 @@ export default class AppUpdater {
 }
 
 let mainWindow: BrowserWindow | null = null;
+let store: Store | null = null;
 
 unhandled({
   showDialog: true,
@@ -121,6 +123,14 @@ const createMainWindow = async () => {
 
 };
 
+function loadStore() {
+  // const storeOptions = {
+  //   encryptionKey: 'electron'
+  // }
+  // store = new Store(storeOptions);
+  Store.initRenderer();
+}
+
 /**
  * Add event listeners...
  */
@@ -136,6 +146,7 @@ app.on('window-all-closed', () => {
 app
   .whenReady()
   .then(() => {
+    loadStore();
     createMainWindow();
     app.on('activate', () => {
       // On macOS it's common to re-create a window in the app when the

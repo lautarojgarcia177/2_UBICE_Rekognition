@@ -10,7 +10,7 @@ export const Initial = () => {
   const [loading, setLoading] = useState(false);
   const [progress, setProgress] = useState(0);
   window.addEventListener('rekognition-progress', (event) => {
-    const _progress = event.detail.progress * 100;
+    const _progress = Number((event.detail.progress * 100).toFixed());
     setProgress(_progress);
   });
   window.addEventListener('rekognition-failure', (event) => {

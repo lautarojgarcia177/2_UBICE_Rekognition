@@ -16,11 +16,25 @@ const customStyles = {
 };
 
 export function AWSCredentialsDialog() {
+
+  console.log('aws credentials', window.electron.aws.getCredentials())
+
   const [modalIsOpen, setIsOpen] = useState(false);
+  const [awsCredentials, setAwsCredentials] = useState({
+    accessKeyId: '',
+    secretAccessKey: ''
+  });
+  useEffect(() => {
+    const _awsCredentials = window.electron.aws.getCredentials();
+    setAwsCredentials({
+      accessKeyId: _awsCredentials.accessKeyId,
+      secreatAccessKey: _awsCredentials.secretAccessKey
+    });
+  }, [])
   const formik = useFormik({
     initialValues: {
-      accessKeyId: '',
-      secretAccessKey: '',
+      accessKeyId: awsCredentials.accessKeyId,
+      secretAccessKey: awsCredentials.secretAccessKey,
     },
     onSubmit: (values) => {
       const { accessKeyId, secretAccessKey } = values;
