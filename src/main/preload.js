@@ -98,12 +98,22 @@ ipcRenderer.on('directory-selection-cancelled', (event, ...args) => {
   window.dispatchEvent(new Event('directory-selection-cancelled'));
 });
 
+
 const parse2CSV = () => {
   const json2csvParser = new Parser();
-  const rekognitions = rekognitionResults.map((rekognition) => ({
-    imageFilename: rekognition.imageFilename[0],
-    findings: rekognition.findings.reduce((prev, curr) => prev + ', ' + curr),
-  }));
+  const rekognitions = rekognitionResults.map((rekognition) => {
+    let findings = '';
+    for (let finding of rekognition.findings) {
+      if (finding) {
+        findings += finding + ', ';
+      }
+    }
+    findings = findings.slice(0, -2);
+    return {
+      imageFilename: rekognition.imageFilename,
+      findings: findings
+    }
+  });
   return json2csvParser.parse(rekognitions);
 };
 

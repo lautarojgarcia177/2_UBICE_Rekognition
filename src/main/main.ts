@@ -87,7 +87,7 @@ const createMainWindow = async () => {
     show: false,
     width: 1024,
     height: 728,
-    icon: getAssetPath('icon.png'),
+    icon: getAssetPath('icons/ubice-logo.png'),
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
     },

@@ -16,48 +16,35 @@ export const Initial = () => {
   window.addEventListener('rekognition-failure', (event) => {
     const error = event.detail.error;
     setLoading(false);
-    console.log(error);
-    debouncedNotifyRekognitionError();
   });
-  useEffect(() =>
+  useEffect(() => {
     window.removeEventListener('rekognition-progress', (event) => {
-      const _progress = event.detail.progress * 100;
+      const _progress = Number((event.detail.progress * 100).toFixed());
       setProgress(_progress);
-    })
-  );
+    });
+  }, [progress]);
   function selectDirectory() {
     window.electron.ipcRenderer.selectDirectory();
   }
   window.addEventListener('rekognition-finished', () => {
-    navigate('/results');
+    if (
+      !window.electron.aws
+        .getRekognitions()
+        .every((rekognition) => rekognition === undefined)
+    ) {
+      navigate('/results');
+    }
   });
   window.addEventListener('aws-rekognition__start', () => {
     setLoading(true);
   });
   window.addEventListener('directory-selected__no-images-error', () => {
     setLoading(false);
-    debouncedNotifyNoImagesInDirectoryError();
   });
   window.addEventListener('directory-selection-cancelled', () => {
     setLoading(false);
   });
 
-  const debouncedNotifyNoImagesInDirectoryError = useRef(
-    debounce(
-      () =>
-        toast.error(
-          'No se encontro ninguna imagen jpg, jpeg o png en el directorio seleccionado.'
-        ),
-      2000
-    )
-  ).current;
-  const debouncedNotifyRekognitionError = useRef(
-    debounce(
-      () =>
-        toast.error('Hubo un error, no se pudo reconocer las imagenes en aws'),
-      4000
-    )
-  ).current;
   const selectDirectoryButton = (
     <>
       <p>

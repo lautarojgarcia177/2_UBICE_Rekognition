@@ -26,7 +26,7 @@ function rekognize(imagePath) {
         },
         Filters: {
           WordFilter: {
-            MinConfidence: 98,
+            MinConfidence: 95,
           },
         },
       });

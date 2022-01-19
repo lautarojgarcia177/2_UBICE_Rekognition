@@ -25,25 +25,36 @@ export function AWSCredentialsDialog() {
     onSubmit: (values) => {
       const { accessKeyId, secretAccessKey } = values;
       window.electron.aws.setCredentials(accessKeyId, secretAccessKey);
-      toast.success(
-        'Credenciales de AWS actualizadas'
-      ),
-      closeModal();
+      toast.success('Credenciales de AWS actualizadas'), closeModal();
     },
   });
 
   function openModal() {
     setIsOpen(true);
-    document
-      .getElementsByClassName('button__select_directory')[0]
-      .classList.add('hide');
+    const btn_select_directory = document.getElementsByClassName(
+      'button__select_directory'
+    )[0];
+    if (btn_select_directory) {
+      btn_select_directory.classList.add('hide');
+    }
+    const results_export_buttons = document.getElementById('results_export_buttons');
+    if (results_export_buttons) {
+      results_export_buttons.classList.add('hide');
+    }
   }
 
   function closeModal() {
     setIsOpen(false);
-    document
-      .getElementsByClassName('button__select_directory')[0]
-      .classList.remove('hide');
+    const btn_select_directory = document.getElementsByClassName(
+      'button__select_directory'
+    )[0];
+    if (btn_select_directory) {
+      btn_select_directory.classList.remove('hide');
+    }
+    const results_export_buttons = document.getElementById('results_export_buttons');
+    if (results_export_buttons) {
+      results_export_buttons.classList.remove('hide');
+    }
   }
 
   window.addEventListener('set-aws-credentials', () => {
@@ -81,7 +92,13 @@ export function AWSCredentialsDialog() {
           />
         </div>
         <div className="aws-credentials-dialog__buttons">
-          <Button type="submit" floating={false} small={true} node="button" waves="purple">
+          <Button
+            type="submit"
+            floating={false}
+            small={true}
+            node="button"
+            waves="purple"
+          >
             Guardar
             <Icon left>save</Icon>
           </Button>

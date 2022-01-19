@@ -2,7 +2,7 @@ import { Button, Icon } from 'react-materialize';
 import { useNavigate } from 'react-router-dom';
 
 const Findings = (props) => {
-  return props.findings.map((finding, index) => (
+  return props.findings?.map((finding, index) => (
     <span key={index}>{finding}, </span>
   ));
 };
@@ -19,9 +19,11 @@ export const Results = () => {
     .getRekognitions()
     .map((rekognized, index) => (
       <tr key={index}>
-        <td>{rekognized.imageFilename}</td>
+        <td>{rekognized?.imageFilename}</td>
         <td>
-          <Findings findings={rekognized.findings} />
+          {rekognized?.findings?.length > 0 && (
+            <Findings findings={rekognized?.findings} />
+          )}
         </td>
       </tr>
     ));
@@ -52,17 +54,17 @@ export const Results = () => {
         </table>
       </div>
       <div id="results_export_buttons" className="mt-2">
-      <Button
-        node="button"
-        style={{
-          marginRight: '5px',
-        }}
-        waves="light"
-        onClick={exportToCSV}
-      >
-        Exportar a CSV
-        <Icon left>view_list</Icon>
-      </Button>
+        <Button
+          node="button"
+          style={{
+            marginRight: '5px',
+          }}
+          waves="light"
+          onClick={exportToCSV}
+        >
+          Exportar a CSV
+          <Icon left>view_list</Icon>
+        </Button>
       </div>
     </div>
   );
