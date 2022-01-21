@@ -1,8 +1,9 @@
 import Modal from 'react-modal';
 import { Button, Icon, TextInput } from 'react-materialize';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useFormik } from 'formik';
 import { toast } from 'react-toastify';
+import { AWSCredentials } from 'interfaces/interfaces';
 
 const customStyles = {
   content: {
@@ -16,25 +17,21 @@ const customStyles = {
 };
 
 export function AWSCredentialsDialog() {
-
-  console.log('aws credentials', window.electron.aws.getCredentials())
-
   const [modalIsOpen, setIsOpen] = useState(false);
-  const [awsCredentials, setAwsCredentials] = useState({
+  const [awsCredentials, setAwsCredentials] = useState<AWSCredentials>({
     accessKeyId: '',
-    secretAccessKey: ''
+    secretAccessKey: '',
   });
   useEffect(() => {
-    const _awsCredentials = window.electron.aws.getCredentials();
     setAwsCredentials({
-      accessKeyId: _awsCredentials.accessKeyId,
-      secreatAccessKey: _awsCredentials.secretAccessKey
+      accessKeyId: window.localStorage.getItem('awsAccessKeyId'),
+      secretAccessKey: window.localStorage.getItem('awsSecretAccessKey'),
     });
-  }, [])
+  }, []);
   const formik = useFormik({
     initialValues: {
-      accessKeyId: awsCredentials.accessKeyId,
-      secretAccessKey: awsCredentials.secretAccessKey,
+      accessKeyId: window.localStorage.getItem('awsAccessKeyId'),
+      secretAccessKey: window.localStorage.getItem('awsSecretAccessKey'),
     },
     onSubmit: (values) => {
       const { accessKeyId, secretAccessKey } = values;
@@ -51,7 +48,9 @@ export function AWSCredentialsDialog() {
     if (btn_select_directory) {
       btn_select_directory.classList.add('hide');
     }
-    const results_export_buttons = document.getElementById('results_export_buttons');
+    const results_export_buttons = document.getElementById(
+      'results_export_buttons'
+    );
     if (results_export_buttons) {
       results_export_buttons.classList.add('hide');
     }
@@ -65,7 +64,9 @@ export function AWSCredentialsDialog() {
     if (btn_select_directory) {
       btn_select_directory.classList.remove('hide');
     }
-    const results_export_buttons = document.getElementById('results_export_buttons');
+    const results_export_buttons = document.getElementById(
+      'results_export_buttons'
+    );
     if (results_export_buttons) {
       results_export_buttons.classList.remove('hide');
     }
@@ -92,7 +93,7 @@ export function AWSCredentialsDialog() {
             type="text"
             className="validate"
             onChange={formik.handleChange}
-            value={formik.values.accessKey}
+            value={formik.values.accessKeyId}
           />
           <input
             required

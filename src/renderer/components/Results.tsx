@@ -15,8 +15,7 @@ export const Results = () => {
   function exportToCSV() {
     window.electron.ipcRenderer.showSaveDialogCSV();
   }
-  const results = window.electron.aws
-    .getRekognitions()
+  const results = JSON.parse(window.localStorage.getItem('rekognitionResults'))
     .map((rekognized, index) => (
       <tr key={index}>
         <td>{rekognized?.imageFilename}</td>

@@ -3,35 +3,29 @@ const fs = require('fs');
 const path = require('path');
 const aws = require('./aws.js');
 const { Parser, parse } = require('json2csv');
-const Store = require('electron-store');
+const _ = require('lodash');
 
-let rekognitionResults = [];
-const store = new Store();
+/* Load stored AWS Credentials */
+const credentials = getAWSCredentials();
+if (credentials?.accessKeyId && credentials?.secretAccessKey) {
+  setAWSCredentials(credentials.accessKeyId, credentials.secretAccessKey);
+}
 
 function setAWSCredentials(accessKeyId, secretAccessKey) {
-  store.set('awsAccessKeyId', accessKeyId);
-  store.set('awsSecretAccessKey', secretAccessKey);
+  window.localStorage.setItem('awsAccessKeyId', accessKeyId);
+  window.localStorage.setItem('awsSecretAccessKey', secretAccessKey);
   process.env.AWS_ACCESS_KEY_ID = accessKeyId;
   process.env.AWS_SECRET_ACCESS_KEY = secretAccessKey;
 }
 
 function getAWSCredentials() {
   return {
-    accessKeyId: store.get('awsAccessKeyId'),
-    secretAccessKey: store.get('awsSecretAccessKey'),
-    process: {
-      accessKeyId: process.env.AWS_ACCESS_KEY_ID,
-      secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY
-    }
+    accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
   };
 }
 
-function loadAWSCredentials() {
-  const credentials = getAWSCredentials();
-  setAWSCredentials(credentials.accesKeyId, credentials.secretAccessKey);
-}
-
-loadAWSCredentials();
+/* API Accesible via window.electron */
 
 contextBridge.exposeInMainWorld('electron', {
   ipcRenderer: {
@@ -44,7 +38,7 @@ contextBridge.exposeInMainWorld('electron', {
   },
   aws: {
     getRekognitions() {
-      return rekognitionResults;
+      return JSON.parse(window.localStorage.getItem('rekognitionResults'));
     },
     setCredentials(accessKeyId, secretAccessKey) {
       setAWSCredentials(accessKeyId, secretAccessKey);
@@ -92,21 +86,33 @@ ipcRenderer.on('directory-selected', (event, selectedDirectoryPath) => {
             };
           })
           .catch((err) => {
-            window.dispatchEvent(
-              new CustomEvent('rekognition-failure', {
-                detail: { error: err },
-              })
-            );
+            dispatchEventRekognitionFailed(err);
           });
         promises.push(promise);
       }
-      Promise.all(promises).then((results) => {
-        rekognitionResults = results;
-        window.dispatchEvent(new Event('rekognition-finished'));
-        new window.Notification('Se terminó de reconocer las imagenes', {
-          body: 'El reporte de reconocimiento de números en las imágenes está listo',
+      Promise.all(promises)
+        .then((results) => {
+          if (
+            Array.isArray(results) &&
+            !results.every((rekognition) => rekognition === undefined)
+          ) {
+            window.localStorage.setItem(
+              'rekognitionResults',
+              JSON.stringify(results)
+            );
+            window.dispatchEvent(new Event('rekognition-finished'));
+            new window.Notification('Se terminó de reconocer las imagenes', {
+              body: 'El reporte de reconocimiento de números en las imágenes está listo',
+            });
+          } else {
+            new window.Notification('Error al reconocer las imagenes', {
+              body: 'El resultado del reconocimiento es inválido',
+            });
+          }
+        })
+        .catch((err) => {
+          console.error('Error en promise all', err);
         });
-      });
     } else {
       window.dispatchEvent(new Event('directory-selected__no-images-error'));
     }
@@ -121,9 +127,23 @@ ipcRenderer.on('directory-selection-cancelled', (event, ...args) => {
   window.dispatchEvent(new Event('directory-selection-cancelled'));
 });
 
+ipcRenderer.on('directory-selected__export-CSV', (_, filePath) => {
+  const csv = parse2CSV();
+  fs.writeFile(filePath, csv, function (err, _) {
+    shell.showItemInFolder(filePath);
+    new window.Notification('Se generó el archivo CSV de resultados', {
+      body: 'Se finalizo de generar el reporte en formato CSV, puede encontrarlo en el directorio seleccionado',
+    });
+  });
+});
+
+/* Utility functions */
+
 const parse2CSV = () => {
   const json2csvParser = new Parser();
-  const rekognitions = rekognitionResults.map((rekognition) => {
+  const rekognitions = JSON.parse(
+    window.localStorage.getItem(rekognitionResults)
+  ).map((rekognition) => {
     let findings = '';
     for (let finding of rekognition.findings) {
       if (finding) {
@@ -139,12 +159,18 @@ const parse2CSV = () => {
   return json2csvParser.parse(rekognitions);
 };
 
-ipcRenderer.on('directory-selected__export-CSV', (_, filePath) => {
-  const csv = parse2CSV();
-  fs.writeFile(filePath, csv, function (err, _) {
-    shell.showItemInFolder(filePath);
-    new window.Notification('Se generó el archivo CSV de resultados', {
-      body: 'Se finalizo de generar el reporte en formato CSV, puede encontrarlo en el directorio seleccionado',
-    });
-  });
-});
+let rekognitionFailedMessageDispatched = false;
+function dispatchEventRekognitionFailed(err) {
+  if (!rekognitionFailedMessageDispatched) {
+    rekognitionFailedMessageDispatched = true;
+    window.dispatchEvent(
+      new CustomEvent('rekognition-failure', {
+        detail: { error: err },
+      })
+    );
+    /* Debounce this function call */
+    setTimeout(() => {
+      rekognitionFailedMessageDispatched = false;
+    }, 5000);
+  }
+}

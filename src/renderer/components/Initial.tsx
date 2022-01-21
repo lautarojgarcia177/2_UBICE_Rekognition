@@ -9,12 +9,13 @@ export const Initial = () => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [progress, setProgress] = useState(0);
+
+  /* listeners of renderer process (preload.js) */
   window.addEventListener('rekognition-progress', (event) => {
     const _progress = Number((event.detail.progress * 100).toFixed());
     setProgress(_progress);
   });
   window.addEventListener('rekognition-failure', (event) => {
-    const error = event.detail.error;
     setLoading(false);
   });
   useEffect(() => {
@@ -27,13 +28,7 @@ export const Initial = () => {
     window.electron.ipcRenderer.selectDirectory();
   }
   window.addEventListener('rekognition-finished', () => {
-    if (
-      !window.electron.aws
-        .getRekognitions()
-        .every((rekognition) => rekognition === undefined)
-    ) {
       navigate('/results');
-    }
   });
   window.addEventListener('aws-rekognition__start', () => {
     setLoading(true);

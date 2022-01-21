@@ -17,8 +17,7 @@ import log from 'electron-log';
 import MenuBuilder from './menu';
 import { resolveHtmlPath } from './util';
 import unhandled from 'electron-unhandled';
-import 'dotenv/config' // see https://github.com/motdotla/dotenv#how-do-i-use-dotenv-with-import
-import Store from 'electron-store';
+import 'dotenv/config'; // see https://github.com/motdotla/dotenv#how-do-i-use-dotenv-with-import
 
 export default class AppUpdater {
   constructor() {
@@ -29,22 +28,9 @@ export default class AppUpdater {
 }
 
 let mainWindow: BrowserWindow | null = null;
-let store: Store | null = null;
 
 unhandled({
   showDialog: true,
-});
-
-ipcMain.on('select-directory', (event, arg) => {
-  const selectedDirectoryPath = dialog.showOpenDialogSync(<any>mainWindow, {
-    title: 'Seleccionar directorio de imagenes',
-    properties: ['openDirectory', 'showHiddenFiles', 'createDirectory'],
-  });
-  if (selectedDirectoryPath) {
-    event.reply('directory-selected', selectedDirectoryPath);
-  } else {
-    event.reply('directory-selection-cancelled');
-  }
 });
 
 if (process.env.NODE_ENV === 'production') {
@@ -120,20 +106,23 @@ const createMainWindow = async () => {
     event.preventDefault();
     shell.openExternal(url);
   });
-
 };
-
-function loadStore() {
-  // const storeOptions = {
-  //   encryptionKey: 'electron'
-  // }
-  // store = new Store(storeOptions);
-  Store.initRenderer();
-}
 
 /**
  * Add event listeners...
  */
+
+app
+  .whenReady()
+  .then(() => {
+    createMainWindow();
+    app.on('activate', () => {
+      // On macOS it's common to re-create a window in the app when the
+      // dock icon is clicked and there are no other windows open.
+      if (mainWindow === null) createMainWindow();
+    });
+  })
+  .catch(console.log);
 
 app.on('window-all-closed', () => {
   // Respect the OSX convention of having the application in memory even
@@ -143,18 +132,7 @@ app.on('window-all-closed', () => {
   }
 });
 
-app
-  .whenReady()
-  .then(() => {
-    loadStore();
-    createMainWindow();
-    app.on('activate', () => {
-      // On macOS it's common to re-create a window in the app when the
-      // dock icon is clicked and there are no other windows open.
-      if (mainWindow === null) createMainWindow();
-    });
-  })
-  .catch(console.log);
+/* IPC */
 
 ipcMain.on('open-dialog-export-CSV', (event) => {
   dialog
@@ -177,4 +155,16 @@ ipcMain.on('open-dialog-export-CSV', (event) => {
     .catch((err) => {
       console.log(err);
     });
+});
+
+ipcMain.on('select-directory', (event, arg) => {
+  const selectedDirectoryPath = dialog.showOpenDialogSync(<any>mainWindow, {
+    title: 'Seleccionar directorio de imagenes',
+    properties: ['openDirectory', 'showHiddenFiles', 'createDirectory'],
+  });
+  if (selectedDirectoryPath) {
+    event.reply('directory-selected', selectedDirectoryPath);
+  } else {
+    event.reply('directory-selection-cancelled');
+  }
 });
