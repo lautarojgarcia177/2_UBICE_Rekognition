@@ -164,7 +164,18 @@ export default class MenuBuilder {
   }
 
   buildDefaultTemplate() {
-    const templateDefault = [
+    return [
+      {
+        label: '&Archivo',
+        submenu: [
+          {
+            label: '&Salir',
+            click: () => {
+              this.mainWindow.close();
+            },
+          },
+        ],
+      },
       {
         label: '&Ver',
         submenu:
@@ -234,7 +245,5 @@ export default class MenuBuilder {
         },
       },
     ];
-
-    return templateDefault;
   }
 }
