@@ -142,7 +142,7 @@ ipcRenderer.on('directory-selected__export-CSV', (_, filePath) => {
 const parse2CSV = () => {
   const json2csvParser = new Parser();
   const rekognitions = JSON.parse(
-    window.localStorage.getItem(rekognitionResults)
+    window.localStorage.getItem('rekognitionResults')
   ).map((rekognition) => {
     let findings = '';
     for (let finding of rekognition.findings) {

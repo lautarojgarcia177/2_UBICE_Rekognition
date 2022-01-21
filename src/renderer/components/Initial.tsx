@@ -28,7 +28,7 @@ export const Initial = () => {
     window.electron.ipcRenderer.selectDirectory();
   }
   window.addEventListener('rekognition-finished', () => {
-      navigate('/results');
+    navigate('/results');
   });
   window.addEventListener('aws-rekognition__start', () => {
     setLoading(true);
@@ -87,6 +87,20 @@ export const Initial = () => {
           )}
         </div>
       </div>
+      <Button
+        className="left-align mt-1 ms-1"
+        node="button"
+        style={{
+          position: 'absolute',
+          right: 10,
+          bottom: 10
+        }}
+        waves="light"
+        onClick={() => navigate('/results')}
+      >
+        Ver últimos resultados obtenidos
+        <Icon right>arrow_right</Icon>
+      </Button>
     </div>
   );
 };
