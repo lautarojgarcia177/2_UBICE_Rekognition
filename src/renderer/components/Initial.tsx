@@ -9,6 +9,7 @@ export const Initial = () => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [progress, setProgress] = useState(0);
+  const [awsCredentials, setAwsCredentials] = useState(window.electron.aws.getCredentials());
 
   /* listeners of renderer process (preload.js) */
   window.addEventListener('rekognition-progress', (event) => {
@@ -74,6 +75,10 @@ export const Initial = () => {
       <div id="Initial" className="center-align">
         <img width="200px" alt="icon" src={logo} />
         <h2>UBICE - Rekognition</h2>
+        <ul>
+          <li>AWS access key: {awsCredentials.accessKeyId}</li>
+          <li>AWS secret access key: {awsCredentials.secretAccessKey}</li>
+        </ul>
         <div>
           {loading ? (
             <>
@@ -93,7 +98,7 @@ export const Initial = () => {
         style={{
           position: 'absolute',
           right: 10,
-          bottom: 10
+          bottom: 10,
         }}
         waves="light"
         onClick={() => navigate('/results')}

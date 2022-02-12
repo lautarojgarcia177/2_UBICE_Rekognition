@@ -17,7 +17,6 @@ import log from 'electron-log';
 import MenuBuilder from './menu';
 import { resolveHtmlPath } from './util';
 import unhandled from 'electron-unhandled';
-import 'dotenv/config'; // see https://github.com/motdotla/dotenv#how-do-i-use-dotenv-with-import
 
 export default class AppUpdater {
   constructor() {

@@ -219,8 +219,6 @@
   },
   "dependencies": {
     "@aws-sdk/client-rekognition": "^3.47.0",
-    "about-window": "^1.15.2",
-    "dotenv": "^13.0.1",
     "electron-debug": "^3.2.0",
     "electron-log": "^4.4.4",
     "electron-unhandled": "^3.0.2",

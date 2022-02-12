@@ -1,12 +1,4 @@
-import openAboutWindow from 'about-window';
-import {
-  app,
-  Menu,
-  shell,
-  BrowserWindow,
-  MenuItemConstructorOptions,
-  ipcMain,
-} from 'electron';
+import { app, Menu, BrowserWindow, MenuItemConstructorOptions } from 'electron';
 
 interface DarwinMenuItemConstructorOptions extends MenuItemConstructorOptions {
   selector?: string;
@@ -222,26 +214,6 @@ export default class MenuBuilder {
         label: 'Credenciales AWS',
         click: () => {
           this.mainWindow.webContents.send('set-aws-credentials', null);
-        },
-      },
-      {
-        label: 'Acerca de esta aplicación',
-        click() {
-          openAboutWindow({
-            icon_path: '../../assets/icons/ubice-logo.png',
-            copyright: 'MIT',
-            package_json_dir: '../',
-            show_close_button: 'Cerrar',
-            product_name: 'UBICE-rekognition',
-            description:
-              'Aplicación para reconocer números de corredores en fotos. Utiliza el servicio de Inteligencia Artificial de AWS. Desarrollado por Lautaro Garcia: https://github.com/lautarojgarcia177',
-            open_devtools: false,
-            bug_report_url: 'mailto:lautarojgarcia177@gmail.com',
-            win_options: {
-              height: 490,
-              width: 270,
-            },
-          });
         },
       },
     ];

@@ -5,26 +5,6 @@ const aws = require('./aws.js');
 const { Parser, parse } = require('json2csv');
 const _ = require('lodash');
 
-/* Load stored AWS Credentials */
-const credentials = getAWSCredentials();
-if (credentials?.accessKeyId && credentials?.secretAccessKey) {
-  setAWSCredentials(credentials.accessKeyId, credentials.secretAccessKey);
-}
-
-function setAWSCredentials(accessKeyId, secretAccessKey) {
-  window.localStorage.setItem('awsAccessKeyId', accessKeyId);
-  window.localStorage.setItem('awsSecretAccessKey', secretAccessKey);
-  process.env.AWS_ACCESS_KEY_ID = accessKeyId;
-  process.env.AWS_SECRET_ACCESS_KEY = secretAccessKey;
-}
-
-function getAWSCredentials() {
-  return {
-    accessKeyId: process.env.AWS_ACCESS_KEY_ID,
-    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
-  };
-}
-
 /* API Accesible via window.electron */
 
 contextBridge.exposeInMainWorld('electron', {
@@ -41,10 +21,14 @@ contextBridge.exposeInMainWorld('electron', {
       return JSON.parse(window.localStorage.getItem('rekognitionResults'));
     },
     setCredentials(accessKeyId, secretAccessKey) {
-      setAWSCredentials(accessKeyId, secretAccessKey);
+      window.localStorage.setItem('awsAccessKeyId', accessKeyId);
+      window.localStorage.setItem('awsSecretAccessKey', secretAccessKey);
     },
     getCredentials() {
-      return getAWSCredentials();
+      return {
+        accessKeyId: window.localStorage.getItem('awsAccessKeyId'),
+        secretAccessKey: window.localStorage.getItem('awsSecretAccessKey'),
+      };
     },
   },
 });
@@ -122,7 +106,6 @@ ipcRenderer.on('directory-selected', (event, selectedDirectoryPath) => {
 ipcRenderer.on('set-aws-credentials', (event, ...args) => {
   window.dispatchEvent(new Event('set-aws-credentials'));
 });
-
 ipcRenderer.on('directory-selection-cancelled', (event, ...args) => {
   window.dispatchEvent(new Event('directory-selection-cancelled'));
 });
