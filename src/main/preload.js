@@ -23,6 +23,10 @@ contextBridge.exposeInMainWorld('electron', {
     setCredentials(accessKeyId, secretAccessKey) {
       window.localStorage.setItem('awsAccessKeyId', accessKeyId);
       window.localStorage.setItem('awsSecretAccessKey', secretAccessKey);
+      aws.initClient({
+        accessKeyId: window.localStorage.getItem('awsAccessKeyId'),
+        secretAccessKey: window.localStorage.getItem('awsSecretAccessKey'),
+      });
     },
     getCredentials() {
       return {
@@ -31,6 +35,12 @@ contextBridge.exposeInMainWorld('electron', {
       };
     },
   },
+});
+
+// Init awsClient with credentials
+aws.initClient({
+  accessKeyId: window.localStorage.getItem('awsAccessKeyId'),
+  secretAccessKey: window.localStorage.getItem('awsSecretAccessKey'),
 });
 
 ipcRenderer.on('directory-selected', (event, selectedDirectoryPath) => {

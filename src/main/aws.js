@@ -5,7 +5,19 @@ const {
   DetectTextCommand,
 } = require('@aws-sdk/client-rekognition');
 
-const client = new RekognitionClient({ region: 'us-west-1' });
+let client;
+client = new RekognitionClient({
+  region: 'us-west-1',
+});
+function initClient(credentials) {
+  client = new RekognitionClient({
+    credentials: {
+      AccessKeyId: credentials.accessKeyId,
+      secretAccessKey: credentials.secretAccessKey,
+    },
+    region: 'us-west-1',
+  });
+}
 
 function useRegex(input) {
   let regex = /^[0-9]+$/i;
@@ -42,5 +54,6 @@ function rekognize(imagePath) {
 }
 
 module.exports = {
+  initClient,
   rekognize,
 };
