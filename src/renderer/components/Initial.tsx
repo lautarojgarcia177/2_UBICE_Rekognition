@@ -9,22 +9,35 @@ export const Initial = () => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [progress, setProgress] = useState(0);
-  const [awsCredentials, setAwsCredentials] = useState(window.electron.aws.getCredentials());
 
-  /* listeners of renderer process (preload.js) */
-  window.addEventListener('rekognition-progress', (event) => {
-    const _progress = Number((event.detail.progress * 100).toFixed());
-    setProgress(_progress);
-  });
-  window.addEventListener('rekognition-failure', (event) => {
-    setLoading(false);
-  });
   useEffect(() => {
     window.removeEventListener('rekognition-progress', (event) => {
       const _progress = Number((event.detail.progress * 100).toFixed());
       setProgress(_progress);
     });
   }, [progress]);
+  useEffect(() => {
+    /* listeners of renderer process (preload.js) */
+    let rekognitionProgressListener = (event) =>
+      setProgress(Number((event.detail.progress * 100).toFixed()));
+
+    let rekognitionFailureListener = (event) => setLoading(false);
+    window.addEventListener(
+      'rekognition-progress',
+      rekognitionProgressListener
+    );
+    window.addEventListener('rekognition-failure', rekognitionFailureListener);
+    return () => {
+      window.removeEventListener(
+        'rekognition-progress',
+        rekognitionProgressListener
+      );
+      window.removeEventListener(
+        'rekognition-failure',
+        rekognitionFailureListener
+      );
+    };
+  });
   function selectDirectory() {
     window.electron.ipcRenderer.selectDirectory();
   }
@@ -75,15 +88,11 @@ export const Initial = () => {
       <div id="Initial" className="center-align">
         <img width="200px" alt="icon" src={logo} />
         <h2>UBICE - Rekognition</h2>
-        <ul>
-          <li>AWS access key: {awsCredentials.accessKeyId}</li>
-          <li>AWS secret access key: {awsCredentials.secretAccessKey}</li>
-        </ul>
         <div>
           {loading ? (
             <>
               <Preloader active color="blue" flashing size="big" />
-              <h5>AWS está reconociendo las imágenes...</h5>
+              <h5>AWS esta reconociendo las imágenes...</h5>
               <ProgressBar progress={progress} />
               <small>{progress}%</small>
             </>

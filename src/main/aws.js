@@ -5,55 +5,59 @@ const {
   DetectTextCommand,
 } = require('@aws-sdk/client-rekognition');
 
-let client;
-client = new RekognitionClient({
-  region: 'us-west-1',
-});
-function initClient(credentials) {
-  client = new RekognitionClient({
-    credentials: {
-      AccessKeyId: credentials.accessKeyId,
-      secretAccessKey: credentials.secretAccessKey,
-    },
-    region: 'us-west-1',
-  });
-}
-
 function useRegex(input) {
   let regex = /^[0-9]+$/i;
   return regex.test(input);
 }
+class UBICEAWSClient {
+  constructor(credentials) {
+    this.client = this.initClient(credentials);
+  }
 
-/**
- * use AWS service to rekognize numbers in the image
- * @param {path of the image} imagePath
- */
-function rekognize(imagePath) {
-  return fs.promises
-    .readFile(imagePath)
-    .then((image) => {
-      const command = new DetectTextCommand({
-        Image: {
-          Bytes: image,
-        },
-        Filters: {
-          WordFilter: {
-            MinConfidence: 95,
+  initClient(credentials) {
+    return new RekognitionClient({
+      credentials: {
+        AccessKeyId: credentials.accessKeyId,
+        SecretAccessKey: credentials.secretAccessKey,
+        accessKeyId: credentials.accessKeyId,
+        secretAccessKey: credentials.secretAccessKey,
+      },
+      region: 'us-west-1',
+    });
+  }
+
+  setCredentials(credentials) {
+    this.client = this.initClient(credentials);
+  }
+
+  /**
+   * use AWS service to rekognize numbers in the image
+   * @param {path of the image} imagePath
+   */
+  rekognize(imagePath) {
+    return fs.promises
+      .readFile(imagePath)
+      .then((image) => {
+        const command = new DetectTextCommand({
+          Image: {
+            Bytes: image,
           },
-        },
-      });
-      return client.send(command);
-    })
-    .then((res) =>
-      res.TextDetections.filter((textDetection) =>
-        useRegex(textDetection.DetectedText)
-      )
-        .filter((textDetection) => textDetection.Type === 'WORD')
-        .map((textDetection) => textDetection.DetectedText)
-    );
+          Filters: {
+            WordFilter: {
+              MinConfidence: 95,
+            },
+          },
+        });
+        return this.client.send(command);
+      })
+      .then((res) =>
+        res.TextDetections.filter((textDetection) =>
+          useRegex(textDetection.DetectedText)
+        )
+          .filter((textDetection) => textDetection.Type === 'WORD')
+          .map((textDetection) => textDetection.DetectedText)
+      );
+  }
 }
 
-module.exports = {
-  initClient,
-  rekognize,
-};
+module.exports = UBICEAWSClient

@@ -1,9 +1,21 @@
 const { contextBridge, ipcRenderer, shell } = require('electron');
 const fs = require('fs');
 const path = require('path');
-const aws = require('./aws.js');
+const UBICEAWSClient = require('./aws.js');
 const { Parser, parse } = require('json2csv');
 const _ = require('lodash');
+
+const awsCredentials = {
+  accessKeyId: window.localStorage.getItem('awsAccessKeyId'),
+  secretAccessKey: window.localStorage.getItem('awsSecretAccessKey'),
+};
+if (!window.localStorage.getItem('awsAccessKeyId')) {
+  window.localStorage.setItem('awsAccessKeyId', '');
+}
+if (!window.localStorage.getItem('awsSecretAccessKey')) {
+  window.localStorage.setItem('awsSecretAccessKey', '');
+}
+const ubiceAwsClient = new UBICEAWSClient(awsCredentials);
 
 /* API Accesible via window.electron */
 
@@ -23,7 +35,7 @@ contextBridge.exposeInMainWorld('electron', {
     setCredentials(accessKeyId, secretAccessKey) {
       window.localStorage.setItem('awsAccessKeyId', accessKeyId);
       window.localStorage.setItem('awsSecretAccessKey', secretAccessKey);
-      aws.initClient({
+      ubiceAwsClient.setCredentials({
         accessKeyId: window.localStorage.getItem('awsAccessKeyId'),
         secretAccessKey: window.localStorage.getItem('awsSecretAccessKey'),
       });
@@ -35,12 +47,6 @@ contextBridge.exposeInMainWorld('electron', {
       };
     },
   },
-});
-
-// Init awsClient with credentials
-aws.initClient({
-  accessKeyId: window.localStorage.getItem('awsAccessKeyId'),
-  secretAccessKey: window.localStorage.getItem('awsSecretAccessKey'),
 });
 
 ipcRenderer.on('directory-selected', (event, selectedDirectoryPath) => {
@@ -70,7 +76,7 @@ ipcRenderer.on('directory-selected', (event, selectedDirectoryPath) => {
       }
       for (let i = 0; i < imageFileNames.length; i++) {
         const imagePath = path.join(selectedDirectoryPath, imageFileNames[i]);
-        const promise = aws
+        const promise = ubiceAwsClient
           .rekognize(imagePath)
           .then((result) => {
             notifyProgress();
