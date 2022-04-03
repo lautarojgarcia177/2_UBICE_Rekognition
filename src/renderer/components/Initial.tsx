@@ -83,6 +83,22 @@ export const Initial = () => {
       </Button>
     </>
   );
+
+        const btn__last_results =       <Button
+        className="left-align mt-1 ms-1"
+        node="button"
+        style={{
+          position: 'absolute',
+          right: 10,
+          bottom: 10,
+        }}
+        waves="light"
+        onClick={() => navigate('/results')}
+      >
+        Ver últimos resultados obtenidos
+        <Icon right>arrow_right</Icon>
+      </Button>
+
   return (
     <div>
       <div id="Initial" className="center-align">
@@ -101,20 +117,7 @@ export const Initial = () => {
           )}
         </div>
       </div>
-      <Button
-        className="left-align mt-1 ms-1"
-        node="button"
-        style={{
-          position: 'absolute',
-          right: 10,
-          bottom: 10,
-        }}
-        waves="light"
-        onClick={() => navigate('/results')}
-      >
-        Ver últimos resultados obtenidos
-        <Icon right>arrow_right</Icon>
-      </Button>
+            { !!window.localStorage.getItem('rekognitionResults') && btn__last_results }
     </div>
   );
 };
