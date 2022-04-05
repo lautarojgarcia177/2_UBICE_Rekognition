@@ -2,7 +2,7 @@ import { Button, Icon } from 'react-materialize';
 import { useNavigate } from 'react-router-dom';
 
 const Findings = (props) => {
-  return props.findings?.map((finding, index) => (
+  return props.findings?.map((    finding, index) => (
     <span key={index}>{finding}, </span>
   ));
 };

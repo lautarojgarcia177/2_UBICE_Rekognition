@@ -1,9 +1,10 @@
-const { contextBridge, ipcRenderer, shell } = require('electron');
+const {contextBridge, ipcRenderer, shell} = require('electron');
 const fs = require('fs');
 const path = require('path');
 const UBICEAWSClient = require('./aws.js');
-const { Parser, parse } = require('json2csv');
-const _ = require('lodash');
+const {Parser, parse} = require('json2csv');
+const {Observable, zip, from, tap, map, combineLatest} = require("rxjs");
+const { concatAll } = require('rxjs/operators');
 
 const awsCredentials = {
   accessKeyId: window.localStorage.getItem('awsAccessKeyId'),
@@ -51,72 +52,67 @@ contextBridge.exposeInMainWorld('electron', {
 
 ipcRenderer.on('directory-selected', (event, selectedDirectoryPath) => {
   selectedDirectoryPath = selectedDirectoryPath.shift();
-  fs.readdir(selectedDirectoryPath, (err, allFileNames) => {
-    const imageFileNames = allFileNames.filter(
-      (filename) =>
-        filename.endsWith('.JPG') ||
-        filename.endsWith('.PNG') ||
-        filename.endsWith('.JPEG') ||
-        filename.endsWith('.jpg') ||
-        filename.endsWith('.png') ||
-        filename.endsWith('.jpeg')
-    );
-    if (imageFileNames.length > 0) {
-      window.dispatchEvent(new Event('aws-rekognition__start'));
-      let promises = [];
-      let completed_count = 0;
-      function notifyProgress() {
-        completed_count++;
-        const progress = completed_count / imageFileNames.length;
-        window.dispatchEvent(
-          new CustomEvent('rekognition-progress', {
-            detail: { progress: progress },
-          })
+  if (selectedDirectoryPath) {
+    fs.readdir(selectedDirectoryPath, (err, allFileNames) => {
+        const imageFileNames = allFileNames.filter(
+          (filename) =>
+            filename.endsWith('.JPG') ||
+            filename.endsWith('.PNG') ||
+            filename.endsWith('.JPEG') ||
+            filename.endsWith('.jpg') ||
+            filename.endsWith('.png') ||
+            filename.endsWith('.jpeg')
         );
-      }
-      for (let i = 0; i < imageFileNames.length; i++) {
-        const imagePath = path.join(selectedDirectoryPath, imageFileNames[i]);
-        const promise = ubiceAwsClient
-          .rekognize(imagePath)
-          .then((result) => {
-            notifyProgress();
-            return {
-              imageFilename: imageFileNames[i],
-              findings: result,
-            };
-          })
-          .catch((err) => {
-            dispatchEventRekognitionFailed(err);
-          });
-        promises.push(promise);
-      }
-      Promise.all(promises)
-        .then((results) => {
-          if (
-            Array.isArray(results) &&
-            !results.every((rekognition) => rekognition === undefined)
-          ) {
-            window.localStorage.setItem(
-              'rekognitionResults',
-              JSON.stringify(results)
+        if (imageFileNames.length) {
+          window.dispatchEvent(new Event('aws-rekognition__start'));
+          let completed_count = 0;
+          let observablesArray = [];
+
+          function notifyProgress() {
+            completed_count++;
+            const progress = completed_count / imageFileNames.length;
+            window.dispatchEvent(
+              new CustomEvent('rekognition-progress', {
+                detail: {progress: progress},
+              })
             );
-            window.dispatchEvent(new Event('rekognition-finished'));
-            new window.Notification('Se terminó de reconocer las imagenes', {
-              body: 'El reporte de reconocimiento de números en las imágenes está listo',
-            });
-          } else {
-            new window.Notification('Error al reconocer las imagenes', {
-              body: 'El resultado del reconocimiento es inválido',
-            });
           }
-        })
-        .catch((err) => {
-          console.error('Error en promise all', err);
-        });
-    } else {
-      window.dispatchEvent(new Event('directory-selected__no-images-error'));
-    }
-  });
+
+          // Fill observables array
+          for (let i = 0; i < imageFileNames.length; i++) {
+            const imagePath = path.join(selectedDirectoryPath, imageFileNames[i]);
+            const observable = from(ubiceAwsClient.rekognize(imagePath)).pipe(
+              map(res => ({
+                imageFilename: imageFileNames[i],
+                findings: res,
+              })),
+              tap(() => notifyProgress()),
+            );
+            observablesArray.push(observable);
+          }
+
+          zip(...observablesArray).subscribe({
+            next: results => {
+              if (Array.isArray(results) &&
+                !results.every((rekognition) => rekognition === undefined)) {
+                window.localStorage.setItem(
+                  'rekognitionResults',
+                  JSON.stringify(results)
+                );
+                window.dispatchEvent(new Event('rekognition-finished'));
+                new window.Notification('Se terminó de reconocer las imagenes', {
+                  body: 'El reporte de reconocimiento de números en las imágenes está listo',
+                });
+              }
+            },
+            error: error => dispatchEventRekognitionFailed(error),
+          });
+        } else {
+          window.dispatchEvent(new Event('directory-selected__no-images-error'));
+        }
+      }
+    );
+  }
 });
 
 ipcRenderer.on('set-aws-credentials', (event, ...args) => {
@@ -158,18 +154,22 @@ const parse2CSV = () => {
   return json2csvParser.parse(rekognitions);
 };
 
-let rekognitionFailedMessageDispatched = false;
 function dispatchEventRekognitionFailed(err) {
-  if (!rekognitionFailedMessageDispatched) {
-    rekognitionFailedMessageDispatched = true;
-    window.dispatchEvent(
-      new CustomEvent('rekognition-failure', {
-        detail: { error: err },
-      })
-    );
-    /* Debounce this function call */
-    setTimeout(() => {
-      rekognitionFailedMessageDispatched = false;
-    }, 5000);
-  }
+  window.dispatchEvent(
+    new CustomEvent('rekognition-failure', {
+      detail: {error: err},
+    })
+  );
+  new window.Notification('Error al reconocer las imagenes', {
+    body: 'El resultado del reconocimiento es inválido',
+  });
 }
+
+
+
+
+
+
+
+
+

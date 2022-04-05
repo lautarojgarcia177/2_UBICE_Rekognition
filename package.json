@@ -12,7 +12,7 @@
         "start": "ts-node ./.erb/scripts/check-port-in-use.js && npm run start:renderer",
         "start:main": "cross-env NODE_ENV=development electron -r ts-node/register/transpile-only ./src/main/main.ts",
         "start:renderer": "cross-env NODE_ENV=development TS_NODE_TRANSPILE_ONLY=true webpack serve --config ./.erb/configs/webpack.config.renderer.dev.ts",
-        "test": "jest",
+        "test": "jest"
     },
     "lint-staged": {
         "*.{js,jsx,ts,tsx}": [
@@ -55,7 +55,8 @@
             "gatekeeperAssess": false
         },
         "dmg": {
-            "contents": [{
+            "contents": [
+                {
                     "x": 130,
                     "y": 220
                 },
@@ -231,7 +232,8 @@
         "react-modal": "^3.14.4",
         "react-router-dom": "^6.2.1",
         "react-toastify": "^8.1.0",
-        "regenerator-runtime": "^0.13.9"
+        "regenerator-runtime": "^0.13.9",
+        "rxjs": "^7.5.5"
     },
     "devEngines": {
         "node": ">=14.x",
@@ -242,15 +244,17 @@
     },
     "browserslist": [],
     "prettier": {
-        "overrides": [{
-            "files": [
-                ".prettierrc",
-                ".eslintrc"
-            ],
-            "options": {
-                "parser": "json"
+        "overrides": [
+            {
+                "files": [
+                    ".prettierrc",
+                    ".eslintrc"
+                ],
+                "options": {
+                    "parser": "json"
+                }
             }
-        }],
+        ],
         "singleQuote": true
     }
 }
