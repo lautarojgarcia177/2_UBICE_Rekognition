@@ -55,7 +55,8 @@
             "gatekeeperAssess": false
         },
         "dmg": {
-            "contents": [{
+            "contents": [
+                {
                     "x": 130,
                     "y": 220
                 },
@@ -216,15 +217,19 @@
     },
     "dependencies": {
         "@aws-sdk/client-rekognition": "^3.47.0",
+        "dist-exiftool": "^10.53.0",
         "electron-debug": "^3.2.0",
         "electron-log": "^4.4.4",
         "electron-unhandled": "^3.0.2",
         "electron-updater": "^4.6.4",
+        "exiftool": "^0.0.3",
         "formik": "^2.2.9",
         "history": "^5.2.0",
         "json2csv": "^5.0.6",
         "lodash": "^4.17.21",
         "materialize-css": "^1.0.0",
+        "node-exiftool": "^2.3.0",
+        "piexifjs": "^1.0.6",
         "react": "^17.0.2",
         "react-dom": "^17.0.2",
         "react-materialize": "^3.10.0",
@@ -243,15 +248,17 @@
     },
     "browserslist": [],
     "prettier": {
-        "overrides": [{
-            "files": [
-                ".prettierrc",
-                ".eslintrc"
-            ],
-            "options": {
-                "parser": "json"
+        "overrides": [
+            {
+                "files": [
+                    ".prettierrc",
+                    ".eslintrc"
+                ],
+                "options": {
+                    "parser": "json"
+                }
             }
-        }],
+        ],
         "singleQuote": true
     }
 }

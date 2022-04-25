@@ -1,27 +1,30 @@
-import { Button, Icon } from 'react-materialize';
-import { useNavigate } from 'react-router-dom';
+import {Button, Icon} from 'react-materialize';
+import {useNavigate} from 'react-router-dom';
 
 const Findings = (props) => {
-  return props.findings?.map((    finding, index) => (
+  return props.findings?.map((finding, index) => (
     <span key={index}>{finding}, </span>
   ));
 };
 
 export const Results = () => {
   let navigate = useNavigate();
+
   function goBack() {
     navigate('/');
   }
+
   function exportToCSV() {
     window.electron.ipcRenderer.showSaveDialogCSV();
   }
+
   const results = JSON.parse(window.localStorage.getItem('rekognitionResults'))
     .map((rekognized, index) => (
       <tr key={index}>
         <td>{rekognized?.imageFilename}</td>
         <td>
           {rekognized?.findings?.length > 0 && (
-            <Findings findings={rekognized?.findings} />
+            <Findings findings={rekognized?.findings}/>
           )}
         </td>
       </tr>
@@ -41,13 +44,18 @@ export const Results = () => {
         <Icon left>arrow_back</Icon>
       </Button>
 
+      <div className="w-100 text-center ms-2 me-2">
+        <h5 className="text-center">Se han reconocido los siguientes números y se han etiquetado las
+          imagenes en su metadata</h5>
+      </div>
+
       <div className="results__table">
         <table className="highlight">
           <thead>
-            <tr>
-              <th>Imagen</th>
-              <th>Hallazgos</th>
-            </tr>
+          <tr>
+            <th>Imagen</th>
+            <th>Hallazgos</th>
+          </tr>
           </thead>
           <tbody>{results}</tbody>
         </table>
