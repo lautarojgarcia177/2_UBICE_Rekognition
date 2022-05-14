@@ -84,20 +84,29 @@ export const Initial = () => {
     </>
   );
 
-        const btn__last_results =       <Button
-        className="left-align mt-1 ms-1"
-        node="button"
-        style={{
-          position: 'absolute',
-          right: 10,
-          bottom: 10,
-        }}
-        waves="light"
-        onClick={() => navigate('/results')}
-      >
-        Ver últimos resultados obtenidos
-        <Icon right>arrow_right</Icon>
-      </Button>
+  const btn__last_results = (
+    <Button
+      className="left-align mt-1 ms-1"
+      node="button"
+      waves="light"
+      onClick={() => navigate('/results')}
+    >
+      Ver últimos resultados obtenidos
+      <Icon right>arrow_right</Icon>
+    </Button>
+  );
+
+  const btn__aws_credentials = (
+    <Button
+      className="left-align mt-1 ms-1"
+      node="button"
+      waves="light"
+      onClick={() => window.dispatchEvent(new Event('set-aws-credentials'))}
+    >
+      Configurar credenciales de AWS
+      <Icon right>cloud_queue</Icon>
+    </Button>
+  );
 
   return (
     <div>
@@ -117,7 +126,19 @@ export const Initial = () => {
           )}
         </div>
       </div>
-            { !!window.localStorage.getItem('rekognitionResults') && btn__last_results }
+      <div
+        style={{
+          position: 'absolute',
+          left: 10,
+          bottom: 20,
+        }}
+      >
+        <div>
+          {!!window.localStorage.getItem('rekognitionResults') &&
+            btn__last_results}
+        </div>
+        <div>{btn__aws_credentials}</div>
+      </div>
     </div>
   );
 };
