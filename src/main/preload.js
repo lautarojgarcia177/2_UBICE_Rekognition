@@ -117,24 +117,33 @@ ipcRenderer.on('directory-selected', (event, selectedDirectoryPath) => {
                             }
 
                             // Add keywords to images
-                            for (let i = 0; i < results.length; i++) {
-                                const imagePath = path.join(selectedDirectoryPath, results[i].imageFilename);
-                                exiftool.addKeywords(imagePath, results[i].findings);
+                            async function addKeywords() {
+                                for (let i = 0; i < results.length; i++) {
+                                    const imagePath = path.join(selectedDirectoryPath, results[i].imageFilename);
+                                    await exiftool.addKeywords(imagePath, results[i].findings);
+                                }
+                                await exiftool.endProcess();
                             }
-                            exiftool.endProcess();
+                            addKeywords().then(() => {
+                                window.localStorage.setItem(
+                                    'rekognitionResults',
+                                    JSON.stringify(results)
+                                );
 
-                            window.localStorage.setItem(
-                                'rekognitionResults',
-                                JSON.stringify(results)
-                            );
-
-                            window.dispatchEvent(new Event('rekognition-finished'));
-                            new window.Notification('Se terminó de reconocer las imagenes', {
-                                body: 'El reporte de reconocimiento de números en las imágenes está listo',
-                            });
+                                window.dispatchEvent(new Event('rekognition-finished'));
+                                new window.Notification('Se terminó de reconocer las imagenes', {
+                                    body: 'El reporte de reconocimiento de números en las imágenes está listo',
+                                });
+                            }).catch(error => {
+                                console.error(error);
+                                dispatchEventRekognitionFailed(error);
+                            })
                         }
                     },
-                    error: error => dispatchEventRekognitionFailed(error),
+                    error: error => {
+                        console.error(error);
+                        dispatchEventRekognitionFailed(error);
+                    },
                 });
 
             } else {
