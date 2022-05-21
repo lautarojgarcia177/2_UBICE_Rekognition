@@ -167,3 +167,7 @@ ipcMain.on('select-directory', (event, arg) => {
     event.reply('directory-selection-cancelled');
   }
 });
+
+ipcMain.on('log-application-error', (event, args) => {
+  log.error(args);
+});

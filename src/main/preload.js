@@ -30,6 +30,9 @@ contextBridge.exposeInMainWorld('electron', {
         showSaveDialogCSV() {
             ipcRenderer.send('open-dialog-export-CSV');
         },
+        logApplicationError(errorLog) {
+          ipcRenderer.send('log-application-error', errorLog);
+        }
     },
     aws: {
         getRekognitions() {
@@ -193,6 +196,7 @@ const parse2CSV = () => {
 };
 
 function dispatchEventRekognitionFailed(err) {
+    ipcRenderer.send('log-application-error', error);
     window.dispatchEvent(
         new CustomEvent('rekognition-failure', {
             detail: { error: err },

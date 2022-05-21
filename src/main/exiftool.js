@@ -18,7 +18,6 @@ class ExifTool {
     }
 
     async addKeywords(imageFileName, keywords) {
-        debugger;
         if (!this.isOpen) {
             await ep.open();
             this.isOpen = true;
