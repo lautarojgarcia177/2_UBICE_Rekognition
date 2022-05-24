@@ -13,6 +13,10 @@
     "link-modules": "node -r ts-node/register ../../.erb/scripts/link-modules.ts",
     "postinstall": "npm run electron-rebuild && npm run link-modules"
   },
-  "dependencies": {},
+  "dependencies": {
+    "dist-exiftool": "^10.53.0",
+    "exiftool": "^0.0.3",
+    "node-exiftool": "^2.3.0"
+  },
   "license": "MIT"
 }

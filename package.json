@@ -8,6 +8,7 @@
         "rebuild": "electron-rebuild --parallel --types prod,dev,optional --module-dir release/app",
         "lint": "cross-env NODE_ENV=development eslint . --ext .js,.jsx,.ts,.tsx",
         "package": "ts-node ./.erb/scripts/clean.js dist && npm run build && electron-builder build --publish never",
+        "package:debug": "cross-env DEBUG_PROD=true && npm run package",
         "postinstall": "ts-node .erb/scripts/check-native-dep.js && electron-builder install-app-deps && cross-env NODE_ENV=development TS_NODE_TRANSPILE_ONLY=true webpack --config ./.erb/configs/webpack.config.renderer.dev.dll.ts && opencollective-postinstall",
         "start": "ts-node ./.erb/scripts/check-port-in-use.js && npm run start:renderer",
         "start:main": "cross-env NODE_ENV=development electron -r ts-node/register/transpile-only ./src/main/main.ts",
@@ -32,7 +33,10 @@
         "productName": "UBICE-Rekognition",
         "appId": "org.erb.UBICE-Rekognition",
         "asar": true,
-        "asarUnpack": "**\\*.{node,dll}",
+        "asarUnpack": [
+            "**\\*.{node,dll}",
+            "node_modules/exiftool.exe/vendor/exiftool.exe"
+        ],
         "files": [
             "dist",
             "node_modules",
@@ -85,7 +89,8 @@
             "output": "release/build"
         },
         "extraResources": [
-            "./assets/**"
+            "./assets/**",
+            "node_modules/exiftool.exe/vendor/exiftool.exe"
         ],
         "publish": {
             "provider": "github",
@@ -217,7 +222,6 @@
     },
     "dependencies": {
         "@aws-sdk/client-rekognition": "^3.47.0",
-        "dist-exiftool": "^10.53.0",
         "electron-debug": "^3.2.0",
         "electron-log": "^4.4.7",
         "electron-unhandled": "^3.0.2",

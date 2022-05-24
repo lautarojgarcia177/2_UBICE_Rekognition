@@ -196,7 +196,7 @@ const parse2CSV = () => {
 };
 
 function dispatchEventRekognitionFailed(err) {
-    ipcRenderer.send('log-application-error', error);
+    ipcRenderer.send('log-application-error', err);
     window.dispatchEvent(
         new CustomEvent('rekognition-failure', {
             detail: { error: err },

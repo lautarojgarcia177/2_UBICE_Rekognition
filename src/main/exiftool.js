@@ -2,9 +2,8 @@
  * when done, ensure to call endProcess() to stop the process.
  */
 
-const exiftool = require('node-exiftool')
-const exiftoolBin = require('dist-exiftool')
-const ep = new exiftool.ExiftoolProcess(exiftoolBin)
+const exiftool = require('node-exiftool');
+const ep = new exiftool.ExiftoolProcess();
 
 class ExifTool {
     isOpen = false;
